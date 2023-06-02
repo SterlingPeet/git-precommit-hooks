@@ -15,6 +15,8 @@ Why does this file exist, and why not put this in __main__?
   Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
 """
 import argparse
+import os
+from typing import Sequence
 
 parser = argparse.ArgumentParser(description='Command description.')
 parser.add_argument(
@@ -25,6 +27,19 @@ parser.add_argument(
 )
 
 
-def main(args=None):
+def main(args: Sequence[str] | None = None) -> int:
     args = parser.parse_args(args=args)
     print(args.names)
+
+    value = os.getenv('GIT_DIR')
+
+    if value is not None:
+        print(f'The value of MY_VARIABLE is: {value}')
+    else:
+        print('MY_VARIABLE is not set.')
+
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

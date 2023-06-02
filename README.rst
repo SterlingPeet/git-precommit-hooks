@@ -22,10 +22,6 @@ Overview
     :alt: PyPI Package latest release
     :target: https://pypi.org/project/git-precommit-hooks
 
-.. |wheel| image:: https://img.shields.io/pypi/wheel/git-precommit-hooks.svg
-    :alt: PyPI Wheel
-    :target: https://pypi.org/project/git-precommit-hooks
-
 .. |supported-versions| image:: https://img.shields.io/pypi/pyversions/git-precommit-hooks.svg
     :alt: Supported versions
     :target: https://pypi.org/project/git-precommit-hooks
