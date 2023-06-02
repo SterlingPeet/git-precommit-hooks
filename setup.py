@@ -7,7 +7,9 @@ from setuptools import setup
 
 
 def read(*names, **kwargs):
-    with Path(__file__).parent.joinpath(*names).open(encoding=kwargs.get('encoding', 'utf8')) as fh:
+    with Path(__file__).parent.joinpath(*names).open(
+        encoding=kwargs.get('encoding', 'utf8')
+    ) as fh:
         return fh.read()
 
 
@@ -17,7 +19,9 @@ setup(
     license='Apache-2.0',
     description='Some additional pre-commit hooks.',
     long_description='{}\n{}'.format(
-        re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub('', read('README.rst')),
+        re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub(
+            '', read('README.rst')
+        ),
         re.sub(':[a-z]+:`~?(.*?)`', r'``\1``', read('CHANGELOG.rst')),
     ),
     author='Sterling Peet',
@@ -39,17 +43,12 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
-        # uncomment if you test on these interpreters:
-        # "Programming Language :: Python :: Implementation :: IronPython",
-        # "Programming Language :: Python :: Implementation :: Jython",
-        # "Programming Language :: Python :: Implementation :: Stackless",
         'Topic :: Utilities',
         'Private :: Do Not Upload',
     ],
@@ -60,7 +59,7 @@ setup(
     keywords=[
         # eg: "keyword1", "keyword2", "keyword3",
     ],
-    python_requires='>=3.7',
+    python_requires='>=3.8',
     install_requires=[
         # eg: "aspectlib==1.1.1", "six>=1.7",
     ],

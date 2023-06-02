@@ -39,7 +39,7 @@ default_context:
     pre_commit: "yes"
     project_name: "Git Pre-Commit Hooks"
     project_short_description: "Some additional pre-commit hooks."
-    pypi_badge: "yes"
+    pypi_badge: "no"
     pypi_disable_upload: "yes"
     release_date: "today"
     repo_hosting: "github.com"
