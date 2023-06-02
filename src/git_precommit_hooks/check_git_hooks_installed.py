@@ -31,14 +31,18 @@ def main(args: Sequence[str] | None = None) -> int:
     args = parser.parse_args(args=args)
     print(args.names)
 
-    value = os.getenv('GIT_DIR')
+    var_name = 'GIT_DIR'
+    value = os.getenv(var_name)
 
     if value is not None:
-        print(f'The value of MY_VARIABLE is: {value}')
+        print(f'The value of {var_name} is: {value}')
     else:
-        print('MY_VARIABLE is not set.')
+        print(f'{var_name} is not set.')
 
-    return 0
+    for key, value in os.environ.items():
+        print(f'{key} = {value}')
+
+    return -1
 
 
 if __name__ == '__main__':

@@ -70,7 +70,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'check-git-hooks-installed = git_precommit_hooks.cli:main',
+            'check-git-hooks-installed = git_precommit_hooks.check_git_hooks_installed:main',
         ]
     },
 )

@@ -1,0 +1,6 @@
+-   id: check-git-hooks-installed
+    name: check git hooks installed correctly
+    description: checks to ensure git hooks are all installed correctly
+    entry: check-git-hooks-installed
+    language: python
+    stages: [commit, push, manual]
