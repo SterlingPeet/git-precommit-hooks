@@ -1,48 +1,153 @@
 """
-Module that contains the command line app.
-
-Why does this file exist, and why not put this in __main__?
-
-  You might be tempted to import things from __main__ later, but that will cause
-  problems: the code will get executed twice:
-
-  - When you run `python -mgit_precommit_hooks` python will execute
-    ``__main__.py`` as a script. That means there will not be any
-    ``git_precommit_hooks.__main__`` in ``sys.modules``.
-  - When you import __main__ it will get executed again (as a module) because
-    there"s no ``git_precommit_hooks.__main__`` in ``sys.modules``.
-
-  Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
+Check the git repository hook scripts for valid hook installations.
 """
 import argparse
 import os
+from pathlib import Path
+from typing import Any
+from typing import Optional
 from typing import Sequence
 
-parser = argparse.ArgumentParser(description='Command description.')
+import git
+
+standard_hook_list = [
+    'pre-commit',
+    'prepare-commit-msg',
+    'commit-msg',
+    'post-commit',
+    'pre-rebase',
+    'post-rewrite',
+    'post-checkout',
+    'post-merge',
+    'pre-push',
+    'pre-auto-gc',
+    'pre-recieve',
+    'update',
+    'post-recieve',
+]
+
+parser = argparse.ArgumentParser(
+    description='Check git repository for installed hooks.'
+)
+parser.add_argument(
+    '-p',
+    '--path',
+    default=Path.cwd(),
+    help='git repository location (default cwd)',
+)
+parser.add_argument(
+    '-v',
+    '--verbose',
+    action='store_true',
+    help='increase verbosity for debugging',
+)
+parser.add_argument(
+    '--list-standard-hooks',
+    action='store_true',
+    help='print out the list of standard supported hooks',
+)
+parser.add_argument(
+    '--hook',
+    metavar='HOOK',
+    choices=standard_hook_list,
+    nargs='*',
+    help='a hook name to check (ommision will check pre-commit)',
+)
+parser.add_argument(
+    '--custom-hook',
+    metavar='HOOK',
+    nargs='*',
+    help='custom hook name to check',
+)
 parser.add_argument(
     'names',
-    metavar='NAME',
+    metavar='FILENAME',
     nargs=argparse.ZERO_OR_MORE,
-    help='A name of something.',
+    help='a name of an edited file to check (unused)',
 )
 
 
-def main(args: Sequence[str] | None = None) -> int:
-    args = parser.parse_args(args=args)
-    print(args.names)
+def print_standard_hooks() -> None:
+    """Print the standard hooks to the console."""
+    print('\nThese are the hooks supported by the --hook option:\n')
+    for hook in standard_hook_list:
+        print(f' - {hook}')
+    print('\nMultiple values can be given in the same cli invocation:\n')
+    print(' --hook pre-commit post-commit\n')
 
-    var_name = 'GIT_DIR'
-    value = os.getenv(var_name)
 
-    if value is not None:
-        print(f'The value of {var_name} is: {value}')
+def get_hook_path(hook_name: str, repo_path: Path):
+    """Collect path to hook from hook name and repository path."""
+    repo = git.Repo(search_parent_directories=True)
+    return Path(git.index.fun.hook_path(hook_name, repo.git_dir))
+
+
+def check_hook_shebang(hook_path: Path) -> bool:
+    """ "Check the first line in the file for shebang."""
+    first_line = ''
+    with hook_path.open() as fh:
+        first_line = fh.readline().strip()
+    return first_line.startswith('#!/')
+
+
+class VerbosePrint:
+    """Print if the verbose state is True."""
+
+    def __init__(self, verbose: bool = True) -> None:
+        self.verbose = verbose
+
+    def __call__(self, *args: Any, **kwargs: Any) -> None:
+        if self.verbose:
+            print(*args, **kwargs)
+
+
+def main(sys_args: Optional[Sequence[str]] = None) -> int:
+    args = parser.parse_args(args=sys_args)
+
+    if args.list_standard_hooks:
+        print_standard_hooks()
+        return 0
+
+    flag = 0
+    hook_list = []
+    v_print = VerbosePrint(args.verbose)
+
+    # Set default hook if none provided
+    if args.hook is None:
+        hook_list.append('pre-commit')
     else:
-        print(f'{var_name} is not set.')
+        # Add all hooks specified on the command line
+        for hook in args.hook:
+            hook_list.append(hook)
 
-    for key, value in os.environ.items():
-        print(f'{key} = {value}')
+    # print(hook_list)
 
-    return -1
+    for hook in hook_list:
+        continue_checks = True
+        hook_path = get_hook_path(hook, args.path)
+
+        # Test for file existence
+        if hook_path.is_file():
+            v_print(f' ✅ {hook} hook is present at: {hook_path}')
+        else:
+            print(f' ❌ {hook} hook is not found in the repository.')
+            continue_checks = False
+            flag += 1
+
+        # If file exists, test for executable bit
+        if continue_checks and not os.access(hook_path, os.X_OK):
+            print(f' ❌ {hook} hook is not executable.')
+            continue_checks = False
+            flag += 1
+
+        # If file is executeable, test for #!/
+        if continue_checks and not check_hook_shebang(hook_path):
+            print(
+                f' ❌ {hook} hook does not contain "#!/" executable definition.'
+            )
+            flag += 1
+
+    return flag
 
 
 if __name__ == '__main__':
