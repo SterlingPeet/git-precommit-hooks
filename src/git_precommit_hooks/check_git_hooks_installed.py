@@ -10,22 +10,6 @@ from typing import Sequence
 
 import git
 
-standard_hook_list = [
-    'pre-commit',
-    'prepare-commit-msg',
-    'commit-msg',
-    'post-commit',
-    'pre-rebase',
-    'post-rewrite',
-    'post-checkout',
-    'post-merge',
-    'pre-push',
-    'pre-auto-gc',
-    'pre-recieve',
-    'update',
-    'post-recieve',
-]
-
 parser = argparse.ArgumentParser(
     description='Check git repository for installed hooks.'
 )
@@ -42,22 +26,9 @@ parser.add_argument(
     help='increase verbosity for debugging',
 )
 parser.add_argument(
-    '--list-standard-hooks',
-    action='store_true',
-    help='print out the list of standard supported hooks',
-)
-parser.add_argument(
-    '--hook',
-    metavar='HOOK',
-    choices=standard_hook_list,
-    nargs='*',
-    help='a hook name to check (ommision will check pre-commit)',
-)
-parser.add_argument(
-    '--custom-hook',
-    metavar='HOOK',
-    nargs='*',
-    help='custom hook name to check',
+    '--hooks',
+    default='pre-commit',
+    help='comma separated, no spaces list of hook names to check',
 )
 parser.add_argument(
     'names',
@@ -67,18 +38,9 @@ parser.add_argument(
 )
 
 
-def print_standard_hooks() -> None:
-    """Print the standard hooks to the console."""
-    print('\nThese are the hooks supported by the --hook option:\n')
-    for hook in standard_hook_list:
-        print(f' - {hook}')
-    print('\nMultiple values can be given in the same cli invocation:\n')
-    print(' --hook pre-commit post-commit\n')
-
-
 def get_hook_path(hook_name: str, repo_path: Path):
     """Collect path to hook from hook name and repository path."""
-    repo = git.Repo(search_parent_directories=True)
+    repo = git.Repo(path=repo_path, search_parent_directories=True)
     return Path(git.index.fun.hook_path(hook_name, repo.git_dir))
 
 
@@ -103,24 +65,16 @@ class VerbosePrint:
 
 def main(sys_args: Optional[Sequence[str]] = None) -> int:
     args = parser.parse_args(args=sys_args)
-
-    if args.list_standard_hooks:
-        print_standard_hooks()
-        return 0
-
+    print(sys_args)
     flag = 0
     hook_list = []
     v_print = VerbosePrint(args.verbose)
 
-    # Set default hook if none provided
-    if args.hook is None:
-        hook_list.append('pre-commit')
-    else:
-        # Add all hooks specified on the command line
-        for hook in args.hook:
-            hook_list.append(hook)
+    for hook in args.hooks.split(','):
+        hook_list.append(hook)
 
-    # print(hook_list)
+    v_print(f'Requested hook list: {hook_list}')
+    v_print(f'Checking hooks within {args.path}')
 
     for hook in hook_list:
         continue_checks = True
@@ -146,6 +100,9 @@ def main(sys_args: Optional[Sequence[str]] = None) -> int:
                 f' ❌ {hook} hook does not contain "#!/" executable definition.'
             )
             flag += 1
+
+    if flag > 0:
+        print('To install hooks, run: pre-commit install')
 
     return flag
 
