@@ -7,6 +7,7 @@ include .bumpversion.cfg
 include .cookiecutterrc
 include .coveragerc
 include .editorconfig
+include .gitchangelog.rc
 include .github/workflows/github-actions.yml
 include .pre-commit-config.yaml
 include .pre-commit-hooks.yaml
