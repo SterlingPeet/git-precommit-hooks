@@ -36,9 +36,9 @@
     :target: https://semver.org/
     :alt: Semantic Versioning - 2.0.0
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/SterlingPeet/git-precommit-hooks/v0.0.0.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/SterlingPeet/git-precommit-hooks/v1.0.0.svg
     :alt: Commits since latest release
-    :target: https://github.com/SterlingPeet/git-precommit-hooks/compare/v0.0.0...main
+    :target: https://github.com/SterlingPeet/git-precommit-hooks/compare/v1.0.0...main
 
 .. |gitmoji| image:: https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg
     :target: https://github.com/carloscuesta/gitmoji
